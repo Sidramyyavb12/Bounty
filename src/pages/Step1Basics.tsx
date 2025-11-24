@@ -162,12 +162,12 @@ export default function Step1Basics(): JSX.Element {
                 margin: "0 auto",
               }}
             >
-              <h2 className="h1 fw-bold mb-3">Bounty Title</h2>
+              <h2 className="h1 fw-bold mb-3">Bounty Assignment</h2>
 
               {/* Title */}
               <div className="mb-3">
                 <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
-                  Bounty Title
+                  Bounty Assignment
                 </label>
                 <Input
                   id="bounty-title"
