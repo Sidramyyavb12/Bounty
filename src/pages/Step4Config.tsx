@@ -1,26 +1,24 @@
 // src/pages/Published.tsx
 import React from "react";
 import PageShell from "../components/layout/PageShell";
-import done from '../assets/done.gif'
+import done from "../assets/done.gif";
 
 export default function Published() {
   return (
     <PageShell>
-     <div
-  className="container d-flex flex-column align-items-center justify-content-center"
-  style={{
-    minHeight: "70vh",
-    textAlign: "center",
-    paddingTop: "40px",
-    background: "#FFFFFF",
-    borderRadius: "16px",
-    border: "1px solid #E5E5E5",
-    padding: "40px",
-  }}
->
-
-        
-        {/* Title */}
+      <div
+        className="container d-flex flex-column align-items-center justify-content-center"
+        style={{
+          minHeight: "70vh",
+          textAlign: "center",
+          paddingTop: "40px",
+          background: "#FFFFFF",
+          borderRadius: "16px",
+          border: "1px solid #E5E5E5",
+          padding: "40px",
+        }}
+      >
+        {/* Heading */}
         <h1
           style={{
             fontSize: "32px",

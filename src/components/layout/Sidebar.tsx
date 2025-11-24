@@ -3,11 +3,8 @@ import { NavLink } from "react-router-dom";
 
 const steps = [
   { id: 1, title: "Brief", to: "/step-1" },
-  { id: 2, title: "Rewards", to: "/step-2" },
-  { id: 3, title: "Backer", to: "/step-3" },
-  { id: 4, title: "Config", to: "/step-4" },
-  { id: 5, title: "Criteria", to: "/step-5" },
-  { id: 6, title: "Microtasks", to: "/step-6" },
+  { id: 2, title: "Backer", to: "/step-2" },
+  { id: 3, title: "Rewards", to: "/step-3" },
 ];
 
 export function SidebarContent() {
@@ -15,7 +12,11 @@ export function SidebarContent() {
     <div className="px-3 py-3">
       <h6
         className="text-uppercase text-muted mb-4"
-        style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "0.8px" }}
+        style={{
+          fontSize: "13px",
+          fontWeight: 600,
+          letterSpacing: "0.8px",
+        }}
       >
         Bounty Steps
       </h6>
@@ -40,11 +41,11 @@ export function SidebarContent() {
               style={{
                 width: 32,
                 height: 32,
+                borderRadius: "50%",
                 fontSize: "14px",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: "50%",
                 fontWeight: 600,
               }}
             >

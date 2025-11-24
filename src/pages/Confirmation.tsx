@@ -1,159 +1,144 @@
+// src/pages/Confirmation.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../components/layout/PageShell";
 import Button from "../components/ui/Button";
-import { useBounty } from "../context/BountyContext";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 export default function Confirmation() {
-  const { data } = useBounty();
-  const [loading, setLoading] = useState(false);
+  const bounty = useSelector((state: RootState) => state.bounty);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = () => {
-    if (!data.terms_accepted) {
+    if (!bounty.terms_accepted) {
       alert("Please accept the Terms & Conditions before submitting.");
       return;
     }
 
     setLoading(true);
 
-    // build final payload format
     const payload = {
-      title: data.title,
-      description: data.description,
-      projectTitle: data.projectTitle,
-      type: data.type || "Other",
-      dominant_core: data.dominant_core || "Social",
-      mode: data.mode,
-      location: data.mode === "physical" ? data.location : undefined,
-      reward: {
-        currency: data.reward.currency,
-        amount: data.reward.amount ?? 0,
-        winners: data.reward.winners ?? 1,
-      },
+      ...bounty.basics,
+      reward: bounty.rewards,
       timeline: {
-        expiration_date: new Date(data.timeline.expiration_date).toISOString(),
-        estimated_completion: {
-          days: data.timeline.estimated_completion.days ?? 0,
-          hours: data.timeline.estimated_completion.hours ?? 0,
-          minutes: data.timeline.estimated_completion.minutes ?? 0,
-        },
+        expiration_date: bounty.rewards.expiration_date,
+        estimated_completion: bounty.rewards.estimated_completion,
       },
-      hasImpactCertificate: data.hasImpactCertificate,
-      impactBriefMessage: data.hasImpactCertificate
-        ? data.impactBriefMessage
-        : undefined,
-      has_backer: data.has_backer,
-      backer: data.has_backer ? data.backer : undefined,
-      terms_accepted: data.terms_accepted,
-      sdgs: data.sdgs,
+      hasImpactCertificate: bounty.rewards.hasImpactCertificate,
+      impactBriefMessage: bounty.rewards.impactBriefMessage,
+      has_backer: bounty.backer.has_backer,
+      backer: bounty.backer.has_backer ? bounty.backer : undefined,
+      terms_accepted: bounty.terms_accepted,
     };
 
-    console.log("Final payload:", payload);
+    console.log("Final Payload:", payload);
 
     setTimeout(() => {
       setLoading(false);
-      // pass payload via navigation state
       navigate("/result", { state: { payload } });
-    }, 1200);
+    }, 800);
   };
 
   return (
     <PageShell>
       <div className="max-w-3xl mx-auto space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold">Confirm Bounty</h2>
-          <p className="text-sm text-slate-500">
-            Review the details before creating your bounty.
-          </p>
-        </div>
+        <h2 className="text-xl font-semibold">Confirm Bounty</h2>
+        <p className="text-sm text-slate-500">
+          Review all information before submitting.
+        </p>
 
-        {/* Simple summary – you can style this more like the Figma */}
-        <div className="space-y-4 rounded-lg border bg-white p-4 text-sm">
+        <div
+          className="rounded-lg border bg-white p-4 text-sm space-y-5 m-5"
+          style={{ borderRadius: "20px" }}
+        >
+          {/* BASICS */}
           <div>
             <h3 className="font-semibold text-slate-800">Basics</h3>
-            <p className="mt-1 text-slate-700">
-              <span className="font-medium">Title:</span> {data.title || "-"}
+            <p>
+              <strong>Title:</strong> {bounty.basics.title}
+            </p>
+            <p>
+              <strong>Project:</strong> {bounty.basics.projectTitle || "-"}
             </p>
             <p className="text-slate-700">
-              <span className="font-medium">Project:</span> {data.projectTitle || "-"}
+              {bounty.basics.description.slice(0, 160)}
+              {bounty.basics.description.length > 160 && "..."}
             </p>
-            <p className="mt-1 text-slate-600">
-              {data.description.slice(0, 160) || "-"}
-              {data.description.length > 160 && "..."}
+            <p>
+              <strong>Type:</strong> {bounty.basics.type} ·{" "}
+              <strong>Core:</strong> {bounty.basics.dominant_core}
             </p>
-            <p className="mt-1 text-slate-700">
-              <span className="font-medium">Type:</span> {data.type || "-"} ·{" "}
-              <span className="font-medium">Core:</span> {data.dominant_core || "-"}
-            </p>
-            <p className="text-slate-700">
-              <span className="font-medium">Mode:</span> {data.mode}
-              {data.mode === "physical" && data.location
-                ? ` · ${data.location}`
-                : ""}
+            <p>
+              <strong>Mode:</strong> {bounty.basics.mode}
+              {bounty.basics.mode === "physical" &&
+                ` · ${bounty.basics.location}`}
             </p>
           </div>
 
+          {/* REWARD */}
           <div>
-            <h3 className="font-semibold text-slate-800">Reward & Timeline</h3>
-            <p className="mt-1 text-slate-700">
-              {data.reward.amount ?? "-"} {data.reward.currency} ·{" "}
-              {data.reward.winners ?? "-"} winner(s)
+            <h3 className="font-semibold text-slate-800">Rewards & Timeline</h3>
+            <p>
+              <strong>Reward:</strong> {bounty.rewards.amount}{" "}
+              {bounty.rewards.currency} ·{bounty.rewards.winners} winner(s)
             </p>
-            <p className="text-slate-700">
-              <span className="font-medium">Expires:</span>{" "}
-              {data.timeline.expiration_date || "-"}
+            <p>
+              <strong>Expires:</strong> {bounty.rewards.expiration_date}
             </p>
-            <p className="text-slate-700">
-              <span className="font-medium">ETA:</span>{" "}
-              {data.timeline.estimated_completion.days ?? 0}d{" "}
-              {data.timeline.estimated_completion.hours ?? 0}h{" "}
-              {data.timeline.estimated_completion.minutes ?? 0}m
+            <p>
+              <strong>ETA:</strong> {bounty.rewards.estimated_completion.days}d{" "}
+              {bounty.rewards.estimated_completion.hours}h{" "}
+              {bounty.rewards.estimated_completion.minutes}m
             </p>
-            <p className="mt-1 text-slate-700">
-              <span className="font-medium">Impact Certificate:</span>{" "}
-              {data.hasImpactCertificate ? "Yes" : "No"}
+            <p>
+              <strong>Impact Certificate:</strong>
+              {bounty.rewards.hasImpactCertificate ? " Yes" : " No"}
             </p>
-            {data.sdgs.length > 0 && (
-              <p className="text-slate-700">
-                <span className="font-medium">SDGs:</span>{" "}
-                {data.sdgs.join(", ")}
+            {bounty.rewards.sdgs.length > 0 && (
+              <p>
+                <strong>SDGs:</strong> {bounty.rewards.sdgs.join(", ")}
               </p>
             )}
           </div>
 
+          {/* BACKER */}
           <div>
             <h3 className="font-semibold text-slate-800">Backer</h3>
-            {data.has_backer ? (
+            {bounty.backer.has_backer ? (
               <>
-                <p className="mt-1 text-slate-700">
-                  <span className="font-medium">Name:</span> {data.backer.name}
+                <p>
+                  <strong>Name:</strong> {bounty.backer.name}
                 </p>
-                <p className="text-slate-700">
-                  <span className="font-medium">Logo:</span> {data.backer.logo}
+                <p>
+                  <strong>Logo:</strong> {bounty.backer.logo}
                 </p>
-                {data.backer.message && (
-                  <p className="mt-1 text-slate-600">
-                    {data.backer.message.slice(0, 120)}
-                  </p>
+                {bounty.backer.message && (
+                  <p>{bounty.backer.message.slice(0, 120)}</p>
                 )}
               </>
             ) : (
-              <p className="mt-1 text-slate-600">No backer added.</p>
+              <p className="text-slate-600">No backer added.</p>
             )}
           </div>
 
           <p className="text-xs text-slate-500">
-            Terms accepted: {data.terms_accepted ? "Yes" : "No"}
+            Terms Accepted: {bounty.terms_accepted ? "Yes" : "No"}
           </p>
         </div>
 
-        <div className="flex justify-between gap-3 pt-4">
-          <Button variant="secondary" onClick={() => navigate("/step-3")} disabled={loading}>
+        <div className="d-flex justify-content-between gap-3">
+          <Button
+            variant="secondary"
+            onClick={() => navigate("/step-3")}
+            disabled={loading}
+          >
             Back
           </Button>
+
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Creating..." : "Create Bounty"}
+            {loading ? "Submitting..." : "Create Bounty"}
           </Button>
         </div>
       </div>

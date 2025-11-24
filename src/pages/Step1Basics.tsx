@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from "react";
+// src/pages/Step1Basics.tsx
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import PageShell from "../components/layout/PageShell";
 import Input from "../components/ui/Input";
 import Textarea from "../components/ui/Textarea";
 import Select from "../components/ui/Select";
 import Button from "../components/ui/Button";
-import { useBounty } from "../context/BountyContext";
-import { validateStep1 } from "../utils/validation";
 import MapPicker from "../components/ui/MapPicker";
+import { RootState, AppDispatch } from "../store/store";
+import { updateBasics } from "../store/bountySlice";
+import { validateStep1 } from "../utils/validation";
+
 const BOUNTY_TYPES = [
   { value: "", label: "Choose category" },
   { value: "Content", label: "Content" },
@@ -25,40 +29,122 @@ const IMPACT_CORES = [
   { value: "Energy", label: "Energy" },
 ];
 
-export default function Step1Basics() {
-  const { data, update } = useBounty();
+export default function Step1Basics(): JSX.Element {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
+  // Redux basics (we confirmed values are at state.bounty.basics)
+  const basics = useSelector((s: RootState) => s.bounty.basics);
+
+  // Local controlled state mirrors redux basics for responsive inputs
   const [local, setLocal] = useState({
-    title: data.title ?? "",
-    description: data.description ?? "",
-    type: data.type ?? "",
-    dominant_core: data.dominant_core ?? "",
-    mode: data.mode ?? "digital",
-    location: data.location ?? "",
-    projectTitle: data.projectTitle ?? "",
+    title: basics.title ?? "",
+    description: basics.description ?? "",
+    projectTitle: basics.projectTitle ?? "",
+    type: basics.type ?? "",
+    dominant_core: basics.dominant_core ?? "",
+    mode: basics.mode ?? "digital",
+    location: basics.location ?? "",
+    locationLat: basics.locationLat ?? null,
+    locationLng: basics.locationLng ?? null,
+    radiusKm: (basics as any).radiusKm ?? 5,
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // touched controls whether we show validation errors for a field
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    setErrors(validateStep1(local));
-  }, [local]);
+  // validation errors object
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const onChange = (k: string, v: any) => {
-    setLocal((s) => ({ ...s, [k]: v }));
-    update({ [k]: v } as any);
+  // keep local in sync when redux basics change externally
+  useEffect(() => {
+    setLocal((s) => ({
+      ...s,
+      title: basics.title ?? "",
+      description: basics.description ?? "",
+      projectTitle: basics.projectTitle ?? "",
+      type: basics.type ?? "",
+      dominant_core: basics.dominant_core ?? "",
+      mode: basics.mode ?? "digital",
+      location: basics.location ?? "",
+      locationLat: basics.locationLat ?? null,
+      locationLng: basics.locationLng ?? null,
+    }));
+  }, [
+    basics.title,
+    basics.description,
+    basics.projectTitle,
+    basics.type,
+    basics.dominant_core,
+    basics.mode,
+    basics.location,
+    basics.locationLat,
+    basics.locationLng,
+  ]);
+
+  // helper to update local + redux together
+  const updateField = (key: string, value: any) => {
+    setLocal((s) => ({ ...s, [key]: value }));
+
+    // Only update redux fields that belong to basics slice
+    const payload: Partial<any> = {};
+    if (key === "locationLat" || key === "locationLng") {
+      // update both lat/lng if either changes
+      payload.locationLat = key === "locationLat" ? value : local.locationLat;
+      payload.locationLng = key === "locationLng" ? value : local.locationLng;
+    } else {
+      payload[key] = value;
+    }
+
+    dispatch(updateBasics(payload));
   };
 
+  // When map changes (lat, lng, radius)
+  const handleMapChange = (payload: { lat: number; lng: number; radiusKm: number }) => {
+    updateField("locationLat", payload.lat);
+    updateField("locationLng", payload.lng);
+    updateField("radiusKm", payload.radiusKm);
+    // also update textual location field used for payload
+    updateField("location", `${payload.lat.toFixed(6)}, ${payload.lng.toFixed(6)}`);
+  };
+
+  // Validate local fields whenever they change
+  useEffect(() => {
+    const v = validateStep1({
+      title: local.title,
+      description: local.description,
+      type: local.type,
+      dominant_core: local.dominant_core,
+      mode: local.mode,
+      location: local.mode === "physical" ? local.location : undefined,
+    } as any);
+    setErrors(v);
+  }, [local.title, local.description, local.type, local.dominant_core, local.mode, local.location]);
+
+  // whether the whole step is valid
+  const isStepValid = useMemo(() => Object.keys(errors).length === 0, [errors]);
+
   const handleNext = () => {
-    const errs = validateStep1(local);
-    setErrors(errs);
-    setTouched({ title: true, description: true });
-    if (Object.keys(errs).length === 0) {
-      update(local);
-      navigate("/step-2");
+    // mark fields as touched so errors become visible
+    setTouched({
+      title: true,
+      description: true,
+      type: true,
+      dominant_core: true,
+      location: true,
+    });
+
+    if (!isStepValid) {
+      // focus first invalid field for better UX
+      if (errors.title) {
+        const el = document.getElementById("bounty-title") as HTMLInputElement | null;
+        el?.focus();
+      }
+      return;
     }
+
+    // state already persisted to redux by updateField — navigate forward
+    navigate("/step-2");
   };
 
   return (
@@ -66,7 +152,6 @@ export default function Step1Basics() {
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-12">
-
             <div
               className="p-4 p-md-5 mb-4"
               style={{
@@ -77,99 +162,110 @@ export default function Step1Basics() {
                 margin: "0 auto",
               }}
             >
-
               <h2 className="h1 fw-bold mb-3">Bounty Title</h2>
 
-              {/* DESCRIPTION */}
+              {/* Title */}
               <div className="mb-3">
-                <label className="form-label"
-                  style={{ fontSize: "20px", fontWeight: 700, color: "#444" }}>
+                <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
+                  Bounty Title
+                </label>
+                <Input
+                  id="bounty-title"
+                  icon="card-text"
+                  value={local.title}
+                  onChange={(e) => updateField("title", e.target.value)}
+                  onBlur={() => setTouched((t) => ({ ...t, title: true }))}
+                  placeholder="Enter a short, descriptive title (max 40 chars)"
+                  maxLength={40}
+                />
+                {touched.title && errors.title && <div className="text-danger small mt-1">{errors.title}</div>}
+              </div>
+
+              {/* Description */}
+              <div className="mb-3">
+                <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
                   Bounty Description
-                </label><i className="bi bi-exclamation-circle"></i>
-
-
+                </label>
                 <Textarea
-                  icon="bi-card-text"
+                  id="bounty-description"
+                  icon="card-text"
                   value={local.description}
-                  onChange={(e) => onChange("description", e.target.value)}
-                  onBlur={() => setTouched(t => ({ ...t, description: true }))}
+                  onChange={(e) => updateField("description", e.target.value)}
+                  onBlur={() => setTouched((t) => ({ ...t, description: true }))}
                   placeholder="Briefly describe what the bounty does"
                 />
-
-                <div className="text-end text-muted small">
-                  {local.description.length}/1000
-                </div>
+                <div className="text-end text-muted small">{(local.description || "").length}/1000</div>
+                {touched.description && errors.description && (
+                  <div className="text-danger small mt-1">{errors.description}</div>
+                )}
               </div>
 
-              {/* PROJECT */}
+              {/* Project */}
               <div className="mb-3">
-                <label className="form-label"
-                  style={{ fontSize: "20px", fontWeight: 700, color: "#444" }}>
+                <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
                   Project
                 </label>
-
                 <Select
-                  icon="bi-grid"
+                  icon="grid"
                   value={local.projectTitle}
-                  onChange={(e) => onChange("projectTitle", e.target.value)}
-                  options={[
-                    { value: "", label: "Choose a project to link the bounty" },
-                  ]}
+                  onChange={(e) => updateField("projectTitle", e.target.value)}
+                  options={[{ value: "", label: "Choose a project to link the bounty" }]}
                 />
               </div>
 
-              {/* TYPE + IMPACT */}
+              {/* Type + Impact Core */}
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
-                  <label className="form-label"
-                    style={{ fontSize: "20px", fontWeight: 700, color: "#444" }}>
+                  <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
                     Bounty Type
-                  </label><i className="bi bi-exclamation-circle"></i>
-
-
+                  </label>
                   <Select
-                    icon="bi-layers"
+                    icon="layers"
                     value={local.type}
-                    onChange={(e) => onChange("type", e.target.value)}
+                    onChange={(e) => {
+                      updateField("type", e.target.value);
+                      setTouched((t) => ({ ...t, type: true }));
+                    }}
                     options={BOUNTY_TYPES}
                   />
+                  {touched.type && errors.type && <div className="text-danger small mt-1">{errors.type}</div>}
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label"
-                    style={{ fontSize: "20px", fontWeight: 700, color: "#444" }}>
+                  <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
                     Dominant Impact Core
-                  </label><i className="bi bi-exclamation-circle"></i>
-
-
+                  </label>
                   <Select
-                    icon="bi-globe2"
+                    icon="globe2"
                     value={local.dominant_core}
-                    onChange={(e) => onChange("dominant_core", e.target.value)}
+                    onChange={(e) => {
+                      updateField("dominant_core", e.target.value);
+                      setTouched((t) => ({ ...t, dominant_core: true }));
+                    }}
                     options={IMPACT_CORES}
                   />
+                  {touched.dominant_core && errors.dominant_core && (
+                    <div className="text-danger small mt-1">{errors.dominant_core}</div>
+                  )}
                 </div>
               </div>
 
-              {/* MODE */}
+              {/* Mode */}
               <div className="mb-3">
-                <label className="form-label"
-                  style={{ fontSize: "20px", fontWeight: 700, color: "#444" }}>
+                <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
                   Bounty Mode
-                </label><i className="bi bi-exclamation-circle"></i>
-
+                </label>
                 <br />
-
                 <div className="form-check form-check-inline">
                   <input
                     id="mode-digital"
                     className="form-check-input"
                     type="radio"
+                    name="mode"
                     checked={local.mode === "digital"}
-                    onChange={() => onChange("mode", "digital")}
+                    onChange={() => updateField("mode", "digital")}
                   />
-                  <label className="form-check-label"
-                    style={{ fontSize: "17px", fontWeight: 600 }}>
+                  <label className="form-check-label" style={{ fontSize: 17, fontWeight: 600 }}>
                     Digital Bounty
                   </label>
                 </div>
@@ -179,84 +275,70 @@ export default function Step1Basics() {
                     id="mode-physical"
                     className="form-check-input"
                     type="radio"
+                    name="mode"
                     checked={local.mode === "physical"}
-                    onChange={() => onChange("mode", "physical")}
+                    onChange={() => updateField("mode", "physical")}
                   />
-                  <label className="form-check-label"
-                    style={{ fontSize: "17px", fontWeight: 600 }}>
+                  <label className="form-check-label" style={{ fontSize: 17, fontWeight: 600 }}>
                     Physical Bounty
                   </label>
                 </div>
               </div>
 
-              {/* LOCATION */}
+              {/* Location fields (only when physical) */}
               {local.mode === "physical" && (
-                <div className="mb-3">
-                  <label className="form-label"
-                    style={{ fontSize: "20px", fontWeight: 700, color: "#444" }}>
-                    Enter Location
-                  </label><i className="bi bi-exclamation-circle"></i>
+                <>
+                  <div className="mb-3">
+                    <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
+                      Enter Location
+                    </label>
+                    <Input
+                      icon="geo-alt"
+                      value={local.location}
+                      onChange={(e) => updateField("location", e.target.value)}
+                      onBlur={() => setTouched((t) => ({ ...t, location: true }))}
+                      placeholder="City / Town where the bounty is live"
+                    />
+                    {touched.location && errors.location && (
+                      <div className="text-danger small mt-1">{errors.location}</div>
+                    )}
+                  </div>
 
+                  <div className="mb-3">
+                    <label className="form-label" style={{ fontSize: 20, fontWeight: 700, color: "#444" }}>
+                      Location Map
+                    </label>
 
-                  <Input
-                    icon="bi-geo-alt"
-                    value={local.location}
-                    onChange={(e) => onChange("location", e.target.value)}
-                    placeholder="City / Town where the bounty is live"
-                  />
-                </div>
+                    <div
+                      style={{
+                        height: "280px",
+                        width: "100%",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        border: "1px solid #E5E5E5",
+                      }}
+                    >
+                      <MapPicker
+                        lat={local.locationLat ?? 12.9716}
+                        lng={local.locationLng ?? 77.5946}
+                        radiusKm={local.radiusKm ?? 5}
+                        onChange={handleMapChange}
+                        height="280px"
+                      />
+                    </div>
+                  </div>
+                </>
               )}
-             {local.mode === "physical" && (
-  <div className="mb-3">
-    <label
-      className="form-label"
-      style={{ fontSize: "20px", fontWeight: 700, color: "#444" }}
-    >
-      Location Map
-    </label>
 
-    {/* FIX: WRAP MAP IN A BLOCK WITH FIXED HEIGHT */}
-    <div
-      style={{
-        height: "280px",
-        width: "100%",
-        borderRadius: "12px",
-        overflow: "hidden",
-        border: "1px solid #E5E5E5",
-      }}
-    >
-      <MapPicker
-        lat={local.locationLat ?? 12.9716}
-        lng={local.locationLng ?? 77.5946}
-        radiusKm={local.radiusKm ?? 5}
-        onChange={({ lat, lng, radiusKm }) => {
-          onChange("locationLat", lat);
-          onChange("locationLng", lng);
-          onChange("radiusKm", radiusKm);
-          onChange("location", `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-        }}
-        height="280px" // ensures MapContainer uses correct height
-      />
-    </div>
-  </div>
-)}
-
-
-              {/* BUTTONS */}
+              {/* Actions */}
               <div className="d-flex justify-content-between mt-5">
                 <Button variant="ghost" onClick={() => navigate(-1)}>
                   Back
                 </Button>
-
-                <Button
-                  variant="primary"
-                  onClick={handleNext}
-                  disabled={Object.keys(errors).length > 0}
-                >
+                <Button variant="primary" onClick={handleNext} disabled={!isStepValid}>
                   Next
                 </Button>
               </div>
-
             </div>
           </div>
         </div>
