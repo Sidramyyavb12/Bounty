@@ -1,50 +1,210 @@
-# React + TypeScript + Vite
+📘 Bounty Creation Wizard – README
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fully functional multi-step Bounty Creation Wizard built using React, TypeScript, Redux Toolkit, and React Router.
+This application replicates a real-world bounty creation flow similar to ImpactMiner/Superteam-style bounties with a clean mobile-first UI, reusable components, validation, and state persistence across pages.
 
-Currently, two official plugins are available:
+🚀 Features
+✅ Multi-Step Form Wizard
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The flow includes the following pages:
 
-## Expanding the ESLint configuration
+Step 1 — Basics
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Step 2 — Backer / Sponsor
 
-- Configure the top-level `parserOptions` property like this:
+Step 3 — Rewards & Timeline
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+Confirmation Page
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Result (Final JSON Payload)
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Published (Success Screen)
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+✅ State Management (Redux Toolkit)
+
+All step data is stored inside a single Redux slice (bountySlice).
+
+Every page automatically syncs Redux and local state.
+
+Final payload is compiled and shown on result page.
+
+✅ Mobile-First UI (PIXEL-Perfect)
+
+Inspired by real mobile bounty creation UI.
+
+Custom components ensure consistent design:
+
+Input, Textarea, Select, Toggle, Checkbox, Button
+
+PageShell provides mobile layout + header.
+
+Clean cards, spacing, typography, and pill UI elements.
+
+✅ Map Picker (Physical bounty mode)
+
+Integrated Leaflet map using react-leaflet.
+
+Allows:
+
+Dragging marker
+
+Selecting location
+
+Controlling radius
+
+Autocomplete search
+
+✅ File Upload (Sponsor Logos)
+
+Validates:
+
+File size
+
+File type
+
+Live preview
+
+Edit/remove support
+
+✅ Strong Validation
+
+Step-wise validation for:
+
+Title / description
+
+Reward logic
+
+SDG limit (max 4)
+
+Impact certificate
+
+Backer name & logo
+
+Terms & conditions
+
+✅ Clean Routing
+
+Using React Router v6 with paths:
+
+/step-1
+/step-2
+/step-3
+/confirm
+/result
+/published
+
+📂 Folder Structure
+src/
+ ├── components/
+ │   ├── layout/
+ │   │   ├── MobileHeader.tsx
+ │   │   └── PageShell.tsx
+ │   └── ui/
+ │       ├── Button.tsx
+ │       ├── Input.tsx
+ │       ├── Select.tsx
+ │       ├── Textarea.tsx
+ │       ├── Toggle.tsx
+ │       ├── Checkbox.tsx
+ │       └── MapPicker.tsx
+ │
+ ├── pages/
+ │   ├── Step1Basics.tsx
+ │   ├── Step2Backer.tsx
+ │   ├── Step3Rewards.tsx
+ │   ├── Confirmation.tsx
+ │   ├── ResultPage.tsx
+ │   └── Published.tsx
+ │
+ ├── store/
+ │   ├── store.ts
+ │   └── bountySlice.ts
+ │
+ ├── utils/
+ │   └── validation.ts
+ │
+ ├── App.tsx
+ └── index.tsx
+
+🛠️ Tech Stack
+Category	Tools
+Framework	React + TypeScript
+State	Redux Toolkit
+Router	React Router v6
+Map	Leaflet + react-leaflet
+Styling	Custom CSS + Bootstrap Icons
+File Handling	Local preview using URL.createObjectURL
+🧩 How It Works
+🌟 Step 1 — Basics
+
+User enters:
+
+Title
+
+Description
+
+Type
+
+Dominant Impact Core
+
+Digital / Physical
+
+Map selection (for physical)
+
+🌟 Step 2 — Backer
+
+User can toggle sponsor:
+
+Upload logo
+
+Enter name
+
+Add message
+
+Accept T&C
+
+🌟 Step 3 — Rewards
+
+User selects:
+
+Currency
+
+Reward amount
+
+Winners
+
+SDGs
+
+Impact certificate
+
+Timeline
+
+🌟 Confirmation
+
+A clean summary of all data.
+
+🌟 Result
+
+Full JSON payload displayed (JSON.stringify(payload, null, 2)).
+
+🌟 Published
+
+Success screen with a celebration GIF.
+
+▶️ Running the Project
+Install Dependencies
+npm install
+
+Start the app
+npm start
+
+Build for Production
+npm run build
+
+📌 Notes / Decisions
+
+Uploaded images are not stored in Redux (only filename stored for assignment compliance).
+
+For preview, URL.createObjectURL() is used (no server storage).
+
+Mobile UI is strictly followed as per assignment requirement.
