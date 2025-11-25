@@ -1,99 +1,96 @@
-📘 Bounty Creation Wizard – README
+<h1>📘 Bounty Creation Wizard – README</h1>
 
-A fully functional multi-step Bounty Creation Wizard built using React, TypeScript, Redux Toolkit, and React Router.
-This application replicates a real-world bounty creation flow similar to ImpactMiner/Superteam-style bounties with a clean mobile-first UI, reusable components, validation, and state persistence across pages.
+<p>
+A fully functional multi-step <strong>Bounty Creation Wizard</strong> built using 
+<strong>React, TypeScript, Redux Toolkit, and React Router</strong>.  
+This application replicates a real-world bounty creation flow similar to 
+ImpactMiner/Superteam-style bounties with a clean mobile-first UI, reusable components, 
+validation, and state persistence across pages.
+</p>
 
-🚀 Features
-✅ Multi-Step Form Wizard
+<hr/>
 
-The flow includes the following pages:
+<h2>🚀 Features</h2>
 
-Step 1 — Basics
+<h3>✅ Multi-Step Form Wizard</h3>
+<p>The flow includes the following pages:</p>
+<ul>
+  <li><strong>Step 1 — Basics</strong></li>
+  <li><strong>Step 2 — Backer / Sponsor</strong></li>
+  <li><strong>Step 3 — Rewards & Timeline</strong></li>
+  <li><strong>Confirmation Page</strong></li>
+  <li><strong>Result (Final JSON Payload)</strong></li>
+  <li><strong>Published (Success Screen)</strong></li>
+</ul>
 
-Step 2 — Backer / Sponsor
+<h3>✅ State Management (Redux Toolkit)</h3>
+<ul>
+  <li>All step data is stored inside a single <code>bountySlice</code>.</li>
+  <li>Every page automatically syncs Redux and local state.</li>
+  <li>Final payload is compiled and displayed on the <strong>Result</strong> page.</li>
+</ul>
 
-Step 3 — Rewards & Timeline
+<h3>✅ Mobile-First UI (Pixel Perfect)</h3>
+<ul>
+  <li>Inspired by real mobile bounty creation interfaces.</li>
+  <li>Reusable UI components:</li>
+  <ul>
+    <li>Input</li>
+    <li>Textarea</li>
+    <li>Select</li>
+    <li>Toggle</li>
+    <li>Checkbox</li>
+    <li>Button</li>
+  </ul>
+  <li><code>PageShell</code> provides mobile layout + header.</li>
+  <li>Clean spacing, cards, typography, and pill elements.</li>
+</ul>
 
-Confirmation Page
+<h3>✅ Map Picker (Physical Bounty Mode)</h3>
+<p>Integrated with <strong>Leaflet + react-leaflet</strong>. Includes:</p>
+<ul>
+  <li>Draggable marker</li>
+  <li>Location selection</li>
+  <li>Radius control</li>
+  <li>Autocomplete search</li>
+</ul>
 
-Result (Final JSON Payload)
+<h3>✅ File Upload (Sponsor Logos)</h3>
+<p>Includes validation for:</p>
+<ul>
+  <li>File size</li>
+  <li>File type</li>
+  <li>Live preview</li>
+  <li>Edit or remove logo</li>
+</ul>
 
-Published (Success Screen)
+<h3>✅ Strong Validation</h3>
+<p>Validates fields across all steps including:</p>
+<ul>
+  <li>Title and description</li>
+  <li>Reward logic</li>
+  <li>SDG limit (max 4)</li>
+  <li>Impact certificate</li>
+  <li>Backer name and logo</li>
+  <li>Terms & conditions</li>
+</ul>
 
-✅ State Management (Redux Toolkit)
-
-All step data is stored inside a single Redux slice (bountySlice).
-
-Every page automatically syncs Redux and local state.
-
-Final payload is compiled and shown on result page.
-
-✅ Mobile-First UI (PIXEL-Perfect)
-
-Inspired by real mobile bounty creation UI.
-
-Custom components ensure consistent design:
-
-Input, Textarea, Select, Toggle, Checkbox, Button
-
-PageShell provides mobile layout + header.
-
-Clean cards, spacing, typography, and pill UI elements.
-
-✅ Map Picker (Physical bounty mode)
-
-Integrated Leaflet map using react-leaflet.
-
-Allows:
-
-Dragging marker
-
-Selecting location
-
-Controlling radius
-
-Autocomplete search
-
-✅ File Upload (Sponsor Logos)
-
-Validates:
-
-File size
-
-File type
-
-Live preview
-
-Edit/remove support
-
-✅ Strong Validation
-
-Step-wise validation for:
-
-Title / description
-
-Reward logic
-
-SDG limit (max 4)
-
-Impact certificate
-
-Backer name & logo
-
-Terms & conditions
-
-✅ Clean Routing
-
-Using React Router v6 with paths:
-
-/step-1
-/step-2
-/step-3
-/confirm
-/result
+<h3>✅ Clean Routing</h3>
+<p>Using React Router v6 with the following paths:</p>
+<code>
+/step-1 <br/>
+/step-2 <br/>
+/step-3 <br/>
+/confirm <br/>
+/result <br/>
 /published
+</code>
 
-📂 Folder Structure
+<hr/>
+
+<h2>📂 Folder Structure</h2>
+
+<pre>
 src/
  ├── components/
  │   ├── layout/
@@ -125,86 +122,80 @@ src/
  │
  ├── App.tsx
  └── index.tsx
+</pre>
 
-🛠️ Tech Stack
-Category	Tools
-Framework	React + TypeScript
-State	Redux Toolkit
-Router	React Router v6
-Map	Leaflet + react-leaflet
-Styling	Custom CSS + Bootstrap Icons
-File Handling	Local preview using URL.createObjectURL
-🧩 How It Works
-🌟 Step 1 — Basics
+<hr/>
 
-User enters:
+<h2>🛠️ Tech Stack</h2>
 
-Title
+<table>
+  <tr><td><strong>Framework</strong></td><td>React + TypeScript</td></tr>
+  <tr><td><strong>State</strong></td><td>Redux Toolkit</td></tr>
+  <tr><td><strong>Router</strong></td><td>React Router v6</td></tr>
+  <tr><td><strong>Map</strong></td><td>Leaflet + react-leaflet</td></tr>
+  <tr><td><strong>Styling</strong></td><td>Custom CSS + Bootstrap Icons</td></tr>
+  <tr><td><strong>File Handling</strong></td><td>URL.createObjectURL()</td></tr>
+</table>
 
-Description
+<hr/>
 
-Type
+<h2>🧩 How It Works</h2>
 
-Dominant Impact Core
+<h3>🌟 Step 1 — Basics</h3>
+<ul>
+  <li>Title</li>
+  <li>Description</li>
+  <li>Type</li>
+  <li>Dominant Impact Core</li>
+  <li>Digital / Physical selection</li>
+  <li>Map picker (for physical)</li>
+</ul>
 
-Digital / Physical
+<h3>🌟 Step 2 — Backer</h3>
+<ul>
+  <li>Upload sponsor logo</li>
+  <li>Enter name</li>
+  <li>Add message</li>
+  <li>Accept terms</li>
+</ul>
 
-Map selection (for physical)
+<h3>🌟 Step 3 — Rewards</h3>
+<ul>
+  <li>Currency</li>
+  <li>Reward amount</li>
+  <li>Winners</li>
+  <li>SDGs (max 4)</li>
+  <li>Impact certificate</li>
+  <li>Timeline</li>
+</ul>
 
-🌟 Step 2 — Backer
+<h3>🌟 Confirmation</h3>
+<p>A clean summary of all data before submission.</p>
 
-User can toggle sponsor:
+<h3>🌟 Result</h3>
+<p>Final JSON payload displayed using <code>JSON.stringify(payload, null, 2)</code>.</p>
 
-Upload logo
+<h3>🌟 Published</h3>
+<p>Success screen with a celebration GIF.</p>
 
-Enter name
+<hr/>
 
-Add message
+<h2>▶️ Running the Project</h2>
 
-Accept T&C
+<h3>Install Dependencies</h3>
+<pre>npm install</pre>
 
-🌟 Step 3 — Rewards
+<h3>Start the App</h3>
+<pre>npm start</pre>
 
-User selects:
+<h3>Build for Production</h3>
+<pre>npm run build</pre>
 
-Currency
+<hr/>
 
-Reward amount
-
-Winners
-
-SDGs
-
-Impact certificate
-
-Timeline
-
-🌟 Confirmation
-
-A clean summary of all data.
-
-🌟 Result
-
-Full JSON payload displayed (JSON.stringify(payload, null, 2)).
-
-🌟 Published
-
-Success screen with a celebration GIF.
-
-▶️ Running the Project
-Install Dependencies
-npm install
-
-Start the app
-npm start
-
-Build for Production
-npm run build
-
-📌 Notes / Decisions
-
-Uploaded images are not stored in Redux (only filename stored for assignment compliance).
-
-For preview, URL.createObjectURL() is used (no server storage).
-
-Mobile UI is strictly followed as per assignment requirement.
+<h2>📌 Notes / Decisions</h2>
+<ul>
+  <li>Uploaded images are <strong>not stored in Redux</strong> (assignment requirement).</li>
+  <li>Preview uses <code>URL.createObjectURL()</code> (no backend upload).</li>
+  <li>UI is fully mobile-first, replicating the assignment layout.</li>
+</ul>
